@@ -1,6 +1,6 @@
 'use strict';
 
-// Last time updated: 2018-12-12 7:50:08 AM UTC
+// Last time updated: 2018-12-16 1:42:05 PM UTC
 
 // ________________
 // RecordRTC v5.4.9
@@ -4943,7 +4943,13 @@ function MultiStreamsMixer(arrayOfMediaStreams) {
             canvas.width = fullcanvas.stream.width;
             canvas.height = fullcanvas.stream.height;
         } else if (remaining.length) {
-            canvas.width = videosLength > 1 ? remaining[0].width * 2 : remaining[0].width;
+            // canvas.width = videosLength > 1 ? remaining[0].width * 2 : remaining[0].width;
+
+            if (videosLength > 1) {
+                canvas.width = remaining[0].videoWidth + remaining[1].videoWidth;
+            } else {
+                canvas.width = remaining[0].videoWidth;
+            }
 
             var height = 1;
             if (videosLength === 3 || videosLength === 4) {
@@ -4958,7 +4964,7 @@ function MultiStreamsMixer(arrayOfMediaStreams) {
             if (videosLength === 9 || videosLength === 10) {
                 height = 5;
             }
-            canvas.height = remaining[0].height * height;
+            canvas.height = remaining[0].videoHeight * height;
         } else {
             canvas.width = self.width || 360;
             canvas.height = self.height || 240;
@@ -4982,11 +4988,11 @@ function MultiStreamsMixer(arrayOfMediaStreams) {
 
         var x = 0;
         var y = 0;
-        var width = video.width;
-        var height = video.height;
+        var width = video.videoWidth;
+        var height = video.videoHeight;
 
         if (idx === 1) {
-            x = video.width;
+            x = 640;
         }
 
         if (idx === 2) {
