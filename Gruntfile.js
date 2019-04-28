@@ -52,7 +52,8 @@ module.exports = function(grunt) {
                     'dev/GifRecorder.js',
                     'dev/MultiStreamsMixer.js', // github/muaz-khan/MultiStreamsMixer
                     'dev/MultiStreamRecorder.js',
-                    'dev/RecordRTC.promises.js'
+                    'dev/RecordRTC.promises.js',
+                    'dev/WebAssemblyRecorder.js' // grunt-contrib-uglify fails; maybe we should use uglify-es instead?
                 ],
                 dest: './temp/RecordRTC.js',
             },
@@ -86,6 +87,7 @@ module.exports = function(grunt) {
                     postMessage: true,
                     Whammy: true,
                     WhammyRecorder: true,
+                    WebAssemblyRecorder: true,
                     MediaStreamRecorder: true,
                     StereoAudioRecorder: true,
                     RecordRTC: true,
@@ -113,7 +115,10 @@ module.exports = function(grunt) {
                     Promise: true,
                     JSON: true,
                     typeof: true,
-                    define: true
+                    define: true,
+                    EBML: true,
+                    ReadableStream: true,
+                    WritableStream: true
                 },
                 browser: true,
                 browserify: true,
@@ -211,6 +216,15 @@ module.exports = function(grunt) {
                 pushTo: 'upstream',
                 gitDescribeOptions: '--tags --always --abbrev=1 --dirty=-d'
             }
+        },
+        watch: {
+            scripts: {
+                files: ['dev/*.js'],
+                tasks: ['concat', 'replace', 'jsbeautifier', 'jshint', 'copy', 'uglify', 'clean'],
+                options: {
+                    spawn: false,
+                },
+            }
         }
     });
 
@@ -219,4 +233,5 @@ module.exports = function(grunt) {
     // set default tasks to run when grunt is called without parameters
     // http://gruntjs.com/api/grunt.task
     grunt.registerTask('default', ['concat', 'replace', 'jsbeautifier', 'jshint', 'copy', 'uglify', 'clean']);
+    grunt.loadNpmTasks('grunt-contrib-watch');
 };

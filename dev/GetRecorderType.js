@@ -34,6 +34,10 @@ function GetRecorderType(mediaStream, config) {
     // video recorder (in WebM format)
     if (config.type === 'video' && (isChrome || isOpera)) {
         recorder = WhammyRecorder;
+
+        if (typeof WebAssemblyRecorder !== 'undefined' && typeof ReadableStream !== 'undefined') {
+            recorder = WebAssemblyRecorder;
+        }
     }
 
     // video recorder (in Gif format)
@@ -47,7 +51,7 @@ function GetRecorderType(mediaStream, config) {
     }
 
     if (isMediaRecorderCompatible() && recorder !== CanvasRecorder && recorder !== GifRecorder && typeof MediaRecorder !== 'undefined' && 'requestData' in MediaRecorder.prototype) {
-        if ((mediaStream.getVideoTracks && mediaStream.getVideoTracks().length) || (mediaStream.getAudioTracks && mediaStream.getAudioTracks().length)) {
+        if (getTracks(mediaStream, 'video').length || getTracks(mediaStream, 'audio').length) {
             // audio-only recording
             if (config.type === 'audio') {
                 if (typeof MediaRecorder.isTypeSupported === 'function' && MediaRecorder.isTypeSupported('audio/webm')) {
@@ -73,6 +77,10 @@ function GetRecorderType(mediaStream, config) {
 
     if (!config.disableLogs && !!recorder && !!recorder.name) {
         console.log('Using recorderType:', recorder.name || recorder.constructor.name);
+    }
+
+    if (!recorder && isSafari) {
+        recorder = MediaStreamRecorder;
     }
 
     return recorder;

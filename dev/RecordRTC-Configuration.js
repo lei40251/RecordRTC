@@ -25,18 +25,18 @@ function RecordRTCConfiguration(mediaStream, config) {
     }
 
     if (config.recorderType && !config.type) {
-        if (config.recorderType === WhammyRecorder || config.recorderType === CanvasRecorder) {
+        if (config.recorderType === WhammyRecorder || config.recorderType === CanvasRecorder || (typeof WebAssemblyRecorder !== 'undefined' && config.recorderType === WebAssemblyRecorder)) {
             config.type = 'video';
         } else if (config.recorderType === GifRecorder) {
             config.type = 'gif';
         } else if (config.recorderType === StereoAudioRecorder) {
             config.type = 'audio';
         } else if (config.recorderType === MediaStreamRecorder) {
-            if (mediaStream.getAudioTracks().length && mediaStream.getVideoTracks().length) {
+            if (getTracks(mediaStream, 'audio').length && getTracks(mediaStream, 'video').length) {
                 config.type = 'video';
-            } else if (mediaStream.getAudioTracks().length && !mediaStream.getVideoTracks().length) {
-                config.type = 'audio';
-            } else if (!mediaStream.getAudioTracks().length && mediaStream.getVideoTracks().length) {
+            } else if (!getTracks(mediaStream, 'audio').length && getTracks(mediaStream, 'video').length) {
+                config.type = 'video';
+            } else if (getTracks(mediaStream, 'audio').length && !getTracks(mediaStream, 'video').length) {
                 config.type = 'audio';
             } else {
                 // config.type = 'UnKnown';
