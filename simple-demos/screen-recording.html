@@ -25,8 +25,7 @@
 <hr>
 <video controls autoplay playsinline></video>
 
-<script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
-<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+<script src="/RecordRTC.js"></script>
 <script>
 var video = document.querySelector('video');
 
@@ -78,7 +77,7 @@ function captureScreen(callback) {
 function stopRecordingCallback() {
     video.src = video.srcObject = null;
     video.src = URL.createObjectURL(recorder.getBlob());
-    
+
     recorder.screen.stop();
     recorder.destroy();
     recorder = null;
@@ -140,4 +139,4 @@ function addStreamStopListener(stream, callback) {
     <p style="padding: 5px 10px;"><b>Browser support:</b> Firefox, Edge and Chrome &gt= 71</p>
     <div><small id="send-message"></small></div>
 </footer>
-<script src="https://cdn.webrtc-experiment.com/common.js"></script>
+<script src="https://www.webrtc-experiment.com/common.js"></script>

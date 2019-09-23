@@ -1,9 +1,9 @@
 'use strict';
 
-// Last time updated: 2019-04-28 3:38:14 AM UTC
+// Last time updated: 2019-06-24 7:56:58 AM UTC
 
 // ________________
-// RecordRTC v5.5.4
+// RecordRTC v5.5.9
 
 // Open-Sourced: https://github.com/muaz-khan/RecordRTC
 
@@ -16,10 +16,10 @@
 // RecordRTC.js
 
 /**
- * {@link https://github.com/muaz-khan/RecordRTC|RecordRTC} is a WebRTC JavaScript library for audio/video as well as screen activity recording. It supports Chrome, Firefox, Opera, Android, and Microsoft Edge. Platforms: Linux, Mac and Windows. 
+ * {@link https://github.com/muaz-khan/RecordRTC|RecordRTC} is a WebRTC JavaScript library for audio/video as well as screen activity recording. It supports Chrome, Firefox, Opera, Android, and Microsoft Edge. Platforms: Linux, Mac and Windows.
  * @summary Record audio, video or screen inside the browser.
- * @license {@link https://github.com/muaz-khan/RecordRTC#license|MIT}
- * @author {@link http://www.MuazKhan.com|Muaz Khan}
+ * @license {@link https://github.com/muaz-khan/RecordRTC/blob/master/LICENSE|MIT}
+ * @author {@link https://MuazKhan.com|Muaz Khan}
  * @typedef RecordRTC
  * @class
  * @example
@@ -49,6 +49,10 @@ function RecordRTC(mediaStream, config) {
     var self = this;
 
     function startRecording(config2) {
+        if (!config.disableLogs) {
+            console.log('RecordRTC version: ', self.version);
+        }
+
         if (!!config2) {
             // allow users to set options using startRecording method
             // config2 is similar to main "config" object (second parameter over RecordRTC constructor)
@@ -416,7 +420,7 @@ function RecordRTC(mediaStream, config) {
          *    var blob = this.getBlob();
          *    video.src = this.toURL();
          * });
-         * 
+         *
          * // or otherwise
          * recorder.setRecordingDuration(fiveMinutes).onRecordingStopped(function() {
          *    var blob = this.getBlob();
@@ -533,10 +537,10 @@ function RecordRTC(mediaStream, config) {
          * @memberof RecordRTC
          * @instance
          * @example
-         * var internal = recorder.getInternalRecorder();
-         * if(internal instanceof MultiStreamRecorder) {
-         *     internal.addStreams([newAudioStream]);
-         *     internal.resetVideoStreams([screenStream]);
+         * var internalRecorder = recorder.getInternalRecorder();
+         * if(internalRecorder instanceof MultiStreamRecorder) {
+         *     internalRecorder.addStreams([newAudioStream]);
+         *     internalRecorder.resetVideoStreams([screenStream]);
          * }
          * @returns {Object} Returns internal recording object.
          */
@@ -681,6 +685,10 @@ function RecordRTC(mediaStream, config) {
          * recorder.startRecording();
          */
         reset: function() {
+            if (self.state === 'recording' && !config.disableLogs) {
+                console.warn('Stop an active recorder.');
+            }
+
             if (mediaRecorder && typeof mediaRecorder.clearRecordedData === 'function') {
                 mediaRecorder.clearRecordedData();
             }
@@ -760,7 +768,7 @@ function RecordRTC(mediaStream, config) {
             config.disableLogs = disableLogsCache;
 
             if (!config.disableLogs) {
-                console.warn('RecordRTC is destroyed.');
+                console.log('RecordRTC is destroyed.');
             }
         },
 
@@ -773,7 +781,7 @@ function RecordRTC(mediaStream, config) {
          * @example
          * alert(recorder.version);
          */
-        version: '5.5.4'
+        version: '5.5.9'
     };
 
     if (!this) {
@@ -791,7 +799,7 @@ function RecordRTC(mediaStream, config) {
     return returnObject;
 }
 
-RecordRTC.version = '5.5.4';
+RecordRTC.version = '5.5.9';
 
 if (typeof module !== 'undefined' /* && !!module.exports*/ ) {
     module.exports = RecordRTC;
@@ -901,8 +909,8 @@ RecordRTC.writeToDisk = function(options) {
 /**
  * {@link RecordRTCConfiguration} is an inner/private helper for {@link RecordRTC}.
  * @summary It configures the 2nd parameter passed over {@link RecordRTC} and returns a valid "config" object.
- * @license {@link https://github.com/muaz-khan/RecordRTC#license|MIT}
- * @author {@link http://www.MuazKhan.com|Muaz Khan}
+ * @license {@link https://github.com/muaz-khan/RecordRTC/blob/master/LICENSE|MIT}
+ * @author {@link https://MuazKhan.com|Muaz Khan}
  * @typedef RecordRTCConfiguration
  * @class
  * @example
@@ -974,8 +982,8 @@ function RecordRTCConfiguration(mediaStream, config) {
 /**
  * {@link GetRecorderType} is an inner/private helper for {@link RecordRTC}.
  * @summary It returns best recorder-type available for your browser.
- * @license {@link https://github.com/muaz-khan/RecordRTC#license|MIT}
- * @author {@link http://www.MuazKhan.com|Muaz Khan}
+ * @license {@link https://github.com/muaz-khan/RecordRTC/blob/master/LICENSE|MIT}
+ * @author {@link https://MuazKhan.com|Muaz Khan}
  * @typedef GetRecorderType
  * @class
  * @example
@@ -1062,8 +1070,8 @@ function GetRecorderType(mediaStream, config) {
 /**
  * MRecordRTC runs on top of {@link RecordRTC} to bring multiple recordings in a single place, by providing simple API.
  * @summary MRecordRTC stands for "Multiple-RecordRTC".
- * @license {@link https://github.com/muaz-khan/RecordRTC#license|MIT}
- * @author {@link http://www.MuazKhan.com|Muaz Khan}
+ * @license {@link https://github.com/muaz-khan/RecordRTC/blob/master/LICENSE|MIT}
+ * @author {@link https://MuazKhan.com|Muaz Khan}
  * @typedef MRecordRTC
  * @class
  * @example
@@ -1592,7 +1600,13 @@ var browserFakeUserAgent = 'Fake/5.0 (FakeOS) AppleWebKit/123 (KHTML, like Gecko
 
     if (typeof document === 'undefined') {
         /*global document:true */
-        that.document = {};
+        that.document = {
+            documentElement: {
+                appendChild: function() {
+                    return '';
+                }
+            }
+        };
 
         document.createElement = document.captureStream = document.mozCaptureStream = function() {
             var obj = {
@@ -1604,7 +1618,8 @@ var browserFakeUserAgent = 'Fake/5.0 (FakeOS) AppleWebKit/123 (KHTML, like Gecko
                 drawImage: function() {},
                 toDataURL: function() {
                     return '';
-                }
+                },
+                style: {}
             };
             return obj;
         };
@@ -1876,6 +1891,27 @@ function setSrcObject(stream, element) {
     } else {
         element.srcObject = stream;
     }
+
+    var reader = new EBML.Reader();
+    var decoder = new EBML.Decoder();
+    var tools = EBML.tools;
+
+    var fileReader = new FileReader();
+    fileReader.onload = function(e) {
+        var ebmlElms = decoder.decode(this.result);
+        ebmlElms.forEach(function(element) {
+            reader.read(element);
+        });
+        reader.stop();
+        var refinedMetadataBuf = tools.makeMetadataSeekable(reader.metadatas, reader.duration, reader.cues);
+        var body = this.result.slice(reader.metadataSize);
+        var newBlob = new Blob([refinedMetadataBuf, body], {
+            type: 'video/webm'
+        });
+
+        callback(newBlob);
+    };
+    fileReader.readAsArrayBuffer(inputBlob);
 }
 
 /**
@@ -1888,7 +1924,7 @@ function setSrcObject(stream, element) {
 function getSeekableBlob(inputBlob, callback) {
     // EBML.js copyrights goes to: https://github.com/legokichi/ts-ebml
     if (typeof EBML === 'undefined') {
-        throw new Error('Please link: https://cdn.webrtc-experiment.com/EBML.js');
+        throw new Error('Please link: https://www.webrtc-experiment.com/EBML.js');
     }
 
     var reader = new EBML.Reader();
@@ -1913,13 +1949,21 @@ function getSeekableBlob(inputBlob, callback) {
     fileReader.readAsArrayBuffer(inputBlob);
 }
 
+if (typeof RecordRTC !== 'undefined') {
+    RecordRTC.invokeSaveAsDialog = invokeSaveAsDialog;
+    RecordRTC.getTracks = getTracks;
+    RecordRTC.getSeekableBlob = getSeekableBlob;
+    RecordRTC.bytesToSize = bytesToSize;
+    RecordRTC.isElectron = isElectron;
+}
+
 // __________ (used to handle stuff like http://goo.gl/xmE5eg) issue #129
 // Storage.js
 
 /**
  * Storage is a standalone object used by {@link RecordRTC} to store reusable objects e.g. "new AudioContext".
- * @license {@link https://github.com/muaz-khan/RecordRTC#license|MIT}
- * @author {@link http://www.MuazKhan.com|Muaz Khan}
+ * @license {@link https://github.com/muaz-khan/RecordRTC/blob/master/LICENSE|MIT}
+ * @author {@link https://MuazKhan.com|Muaz Khan}
  * @example
  * Storage.AudioContext === webkitAudioContext
  * @property {webkitAudioContext} AudioContext - Keeps a reference to AudioContext object.
@@ -1979,7 +2023,7 @@ function isMediaRecorderCompatible() {
 /**
  * MediaStreamRecorder is an abstraction layer for {@link https://w3c.github.io/mediacapture-record/MediaRecorder.html|MediaRecorder API}. It is used by {@link RecordRTC} to record MediaStream(s) in both Chrome and Firefox.
  * @summary Runs top over {@link https://w3c.github.io/mediacapture-record/MediaRecorder.html|MediaRecorder API}.
- * @license {@link https://github.com/muaz-khan/RecordRTC#license|MIT}
+ * @license {@link https://github.com/muaz-khan/RecordRTC/blob/master/LICENSE|MIT}
  * @author {@link https://github.com/muaz-khan|Muaz Khan}
  * @typedef MediaStreamRecorder
  * @class
@@ -2434,8 +2478,8 @@ function MediaStreamRecorder(mediaStream, config) {
         return allStates;
     };
 
-    // if any Track within the MediaStream is muted or not enabled at any time, 
-    // the browser will only record black frames 
+    // if any Track within the MediaStream is muted or not enabled at any time,
+    // the browser will only record black frames
     // or silence since that is the content produced by the Track
     // so we need to stopRecording as soon as any single track ends.
     if (typeof config.checkForInactiveTracks === 'undefined') {
@@ -2481,8 +2525,8 @@ if (typeof RecordRTC !== 'undefined') {
 /**
  * StereoAudioRecorder is a standalone class used by {@link RecordRTC} to bring "stereo" audio-recording in chrome.
  * @summary JavaScript standalone object for stereo audio recording.
- * @license {@link https://github.com/muaz-khan/RecordRTC#license|MIT}
- * @author {@link http://www.MuazKhan.com|Muaz Khan}
+ * @license {@link https://github.com/muaz-khan/RecordRTC/blob/master/LICENSE|MIT}
+ * @author {@link https://MuazKhan.com|Muaz Khan}
  * @typedef StereoAudioRecorder
  * @class
  * @example
@@ -2546,8 +2590,8 @@ function StereoAudioRecorder(mediaStream, config) {
         console.log('StereoAudioRecorder is set to record number of channels: ' + numberOfAudioChannels);
     }
 
-    // if any Track within the MediaStream is muted or not enabled at any time, 
-    // the browser will only record black frames 
+    // if any Track within the MediaStream is muted or not enabled at any time,
+    // the browser will only record black frames
     // or silence since that is the content produced by the Track
     // so we need to stopRecording as soon as any single track ends.
     if (typeof config.checkForInactiveTracks === 'undefined') {
@@ -2706,21 +2750,21 @@ function StereoAudioRecorder(mediaStream, config) {
 
             var view = new DataView(buffer);
 
-            // RIFF chunk descriptor/identifier 
+            // RIFF chunk descriptor/identifier
             writeUTFBytes(view, 0, 'RIFF');
 
             // RIFF chunk length
             // changed "44" to "36" via #401
             view.setUint32(4, 36 + interleavedLength * 2, true);
 
-            // RIFF type 
+            // RIFF type
             writeUTFBytes(view, 8, 'WAVE');
 
-            // format chunk identifier 
+            // format chunk identifier
             // FMT sub-chunk
             writeUTFBytes(view, 12, 'fmt ');
 
-            // format chunk length 
+            // format chunk length
             view.setUint32(16, 16, true);
 
             // sample format (raw)
@@ -2729,23 +2773,23 @@ function StereoAudioRecorder(mediaStream, config) {
             // stereo (2 channels)
             view.setUint16(22, numberOfAudioChannels, true);
 
-            // sample rate 
+            // sample rate
             view.setUint32(24, sampleRate, true);
 
             // byte rate (sample rate * block align)
             view.setUint32(28, sampleRate * 2, true);
 
-            // block align (channel count * bytes per sample) 
+            // block align (channel count * bytes per sample)
             view.setUint16(32, numberOfAudioChannels * 2, true);
 
-            // bits per sample 
+            // bits per sample
             view.setUint16(34, 16, true);
 
             // data sub-chunk
-            // data chunk identifier 
+            // data chunk identifier
             writeUTFBytes(view, 36, 'data');
 
-            // data chunk length 
+            // data chunk length
             view.setUint32(40, interleavedLength * 2, true);
 
             // write the PCM samples
@@ -3198,8 +3242,8 @@ if (typeof RecordRTC !== 'undefined') {
 /**
  * CanvasRecorder is a standalone class used by {@link RecordRTC} to bring HTML5-Canvas recording into video WebM. It uses HTML2Canvas library and runs top over {@link Whammy}.
  * @summary HTML2Canvas recording into video WebM.
- * @license {@link https://github.com/muaz-khan/RecordRTC#license|MIT}
- * @author {@link http://www.MuazKhan.com|Muaz Khan}
+ * @license {@link https://github.com/muaz-khan/RecordRTC/blob/master/LICENSE|MIT}
+ * @author {@link https://MuazKhan.com|Muaz Khan}
  * @typedef CanvasRecorder
  * @class
  * @example
@@ -3215,7 +3259,7 @@ if (typeof RecordRTC !== 'undefined') {
 
 function CanvasRecorder(htmlElement, config) {
     if (typeof html2canvas === 'undefined') {
-        throw 'Please link: https://cdn.webrtc-experiment.com/screenshot.js';
+        throw 'Please link: https://www.webrtc-experiment.com/screenshot.js';
     }
 
     config = config || {};
@@ -3300,7 +3344,7 @@ function CanvasRecorder(htmlElement, config) {
                 throw 'captureStream API are NOT available.';
             }
 
-            // Note: Jan 18, 2016 status is that, 
+            // Note: Jan 18, 2016 status is that,
             // Firefox MediaRecorder API can't record CanvasCaptureMediaStream object.
             mediaStreamRecorder = new MediaStreamRecorder(canvasMediaStream, {
                 mimeType: config.mimeType || 'video/webm'
@@ -3536,8 +3580,8 @@ if (typeof RecordRTC !== 'undefined') {
 /**
  * WhammyRecorder is a standalone class used by {@link RecordRTC} to bring video recording in Chrome. It runs top over {@link Whammy}.
  * @summary Video recording feature in Chrome.
- * @license {@link https://github.com/muaz-khan/RecordRTC#license|MIT}
- * @author {@link http://www.MuazKhan.com|Muaz Khan}
+ * @license {@link https://github.com/muaz-khan/RecordRTC/blob/master/LICENSE|MIT}
+ * @author {@link https://MuazKhan.com|Muaz Khan}
  * @typedef WhammyRecorder
  * @class
  * @example
@@ -3919,8 +3963,8 @@ if (typeof RecordRTC !== 'undefined') {
 /**
  * Whammy is a standalone class used by {@link RecordRTC} to bring video recording in Chrome. It is written by {@link https://github.com/antimatter15|antimatter15}
  * @summary A real time javascript webm encoder based on a canvas hack.
- * @license {@link https://github.com/muaz-khan/RecordRTC#license|MIT}
- * @author {@link http://www.MuazKhan.com|Muaz Khan}
+ * @license {@link https://github.com/muaz-khan/RecordRTC/blob/master/LICENSE|MIT}
+ * @author {@link https://MuazKhan.com|Muaz Khan}
  * @typedef Whammy
  * @class
  * @example
@@ -4352,8 +4396,8 @@ if (typeof RecordRTC !== 'undefined') {
 /**
  * DiskStorage is a standalone object used by {@link RecordRTC} to store recorded blobs in IndexedDB storage.
  * @summary Writing blobs into IndexedDB.
- * @license {@link https://github.com/muaz-khan/RecordRTC#license|MIT}
- * @author {@link http://www.MuazKhan.com|Muaz Khan}
+ * @license {@link https://github.com/muaz-khan/RecordRTC/blob/master/LICENSE|MIT}
+ * @author {@link https://MuazKhan.com|Muaz Khan}
  * @example
  * DiskStorage.Store({
  *     audioBlob: yourAudioBlob,
@@ -4527,8 +4571,8 @@ if (typeof RecordRTC !== 'undefined') {
 
 /**
  * GifRecorder is standalone calss used by {@link RecordRTC} to record video or canvas into animated gif.
- * @license {@link https://github.com/muaz-khan/RecordRTC#license|MIT}
- * @author {@link http://www.MuazKhan.com|Muaz Khan}
+ * @license {@link https://github.com/muaz-khan/RecordRTC/blob/master/LICENSE|MIT}
+ * @author {@link https://MuazKhan.com|Muaz Khan}
  * @typedef GifRecorder
  * @class
  * @example
@@ -4545,7 +4589,7 @@ if (typeof RecordRTC !== 'undefined') {
 function GifRecorder(mediaStream, config) {
     if (typeof GIFEncoder === 'undefined') {
         var script = document.createElement('script');
-        script.src = 'https://cdn.webrtc-experiment.com/gif-recorder.js';
+        script.src = 'https://www.webrtc-experiment.com/gif-recorder.js';
         (document.body || document.documentElement).appendChild(script);
     }
 
@@ -4604,27 +4648,27 @@ function GifRecorder(mediaStream, config) {
         // external library to record as GIF images
         gifEncoder = new GIFEncoder();
 
-        // void setRepeat(int iter) 
-        // Sets the number of times the set of GIF frames should be played. 
+        // void setRepeat(int iter)
+        // Sets the number of times the set of GIF frames should be played.
         // Default is 1; 0 means play indefinitely.
         gifEncoder.setRepeat(0);
 
-        // void setFrameRate(Number fps) 
-        // Sets frame rate in frames per second. 
+        // void setFrameRate(Number fps)
+        // Sets frame rate in frames per second.
         // Equivalent to setDelay(1000/fps).
         // Using "setDelay" instead of "setFrameRate"
         gifEncoder.setDelay(config.frameRate || 200);
 
-        // void setQuality(int quality) 
-        // Sets quality of color quantization (conversion of images to the 
-        // maximum 256 colors allowed by the GIF specification). 
-        // Lower values (minimum = 1) produce better colors, 
-        // but slow processing significantly. 10 is the default, 
-        // and produces good color mapping at reasonable speeds. 
+        // void setQuality(int quality)
+        // Sets quality of color quantization (conversion of images to the
+        // maximum 256 colors allowed by the GIF specification).
+        // Lower values (minimum = 1) produce better colors,
+        // but slow processing significantly. 10 is the default,
+        // and produces good color mapping at reasonable speeds.
         // Values greater than 20 do not yield significant improvements in speed.
         gifEncoder.setQuality(config.quality || 10);
 
-        // Boolean start() 
+        // Boolean start()
         // This writes the GIF Header and returns false if it fails.
         gifEncoder.start();
 
@@ -4808,10 +4852,10 @@ if (typeof RecordRTC !== 'undefined') {
     RecordRTC.GifRecorder = GifRecorder;
 }
 
-// Last time updated: 2018-12-22 9:13:29 AM UTC
+// Last time updated: 2019-06-21 4:09:42 AM UTC
 
 // ________________________
-// MultiStreamsMixer v1.0.7
+// MultiStreamsMixer v1.2.2
 
 // Open-Sourced: https://github.com/muaz-khan/MultiStreamsMixer
 
@@ -4820,16 +4864,119 @@ if (typeof RecordRTC !== 'undefined') {
 // MIT License   - www.WebRTC-Experiment.com/licence
 // --------------------------------------------------
 
-function MultiStreamsMixer(arrayOfMediaStreams) {
+function MultiStreamsMixer(arrayOfMediaStreams, elementClass) {
+
+    var browserFakeUserAgent = 'Fake/5.0 (FakeOS) AppleWebKit/123 (KHTML, like Gecko) Fake/12.3.4567.89 Fake/123.45';
+
+    (function(that) {
+        if (typeof RecordRTC !== 'undefined') {
+            return;
+        }
+
+        if (!that) {
+            return;
+        }
+
+        if (typeof window !== 'undefined') {
+            return;
+        }
+
+        if (typeof global === 'undefined') {
+            return;
+        }
+
+        global.navigator = {
+            userAgent: browserFakeUserAgent,
+            getUserMedia: function() {}
+        };
+
+        if (!global.console) {
+            global.console = {};
+        }
+
+        if (typeof global.console.log === 'undefined' || typeof global.console.error === 'undefined') {
+            global.console.error = global.console.log = global.console.log || function() {
+                console.log(arguments);
+            };
+        }
+
+        if (typeof document === 'undefined') {
+            /*global document:true */
+            that.document = {
+                documentElement: {
+                    appendChild: function() {
+                        return '';
+                    }
+                }
+            };
+
+            document.createElement = document.captureStream = document.mozCaptureStream = function() {
+                var obj = {
+                    getContext: function() {
+                        return obj;
+                    },
+                    play: function() {},
+                    pause: function() {},
+                    drawImage: function() {},
+                    toDataURL: function() {
+                        return '';
+                    },
+                    style: {}
+                };
+                return obj;
+            };
+
+            that.HTMLVideoElement = function() {};
+        }
+
+        if (typeof location === 'undefined') {
+            /*global location:true */
+            that.location = {
+                protocol: 'file:',
+                href: '',
+                hash: ''
+            };
+        }
+
+        if (typeof screen === 'undefined') {
+            /*global screen:true */
+            that.screen = {
+                width: 0,
+                height: 0
+            };
+        }
+
+        if (typeof URL === 'undefined') {
+            /*global screen:true */
+            that.URL = {
+                createObjectURL: function() {
+                    return '';
+                },
+                revokeObjectURL: function() {
+                    return '';
+                }
+            };
+        }
+
+        /*global window:true */
+        that.window = global;
+    })(typeof global !== 'undefined' ? global : null);
 
     // requires: chrome://flags/#enable-experimental-web-platform-features
+
+    elementClass = elementClass || 'multi-streams-mixer';
 
     var videos = [];
     var isStopDrawingFrames = false;
 
     var canvas = document.createElement('canvas');
     var context = canvas.getContext('2d');
-    canvas.style = 'opacity:0;position:absolute;z-index:-1;top: -100000000;left:-1000000000; margin-top:-1000000000;margin-left:-1000000000;';
+    canvas.style.opacity = 0;
+    canvas.style.position = 'absolute';
+    canvas.style.zIndex = -1;
+    canvas.style.top = '-1000em';
+    canvas.style.left = '-1000em';
+    canvas.className = elementClass;
     (document.body || document.documentElement).appendChild(canvas);
 
     this.disableLogs = false;
@@ -4936,6 +5083,7 @@ function MultiStreamsMixer(arrayOfMediaStreams) {
             if (video.stream.fullcanvas) {
                 fullcanvas = video;
             } else {
+                // todo: video.stream.active or video.stream.live to fix blank frames issues?
                 remaining.push(video);
             }
         });
@@ -5066,6 +5214,10 @@ function MultiStreamsMixer(arrayOfMediaStreams) {
             }
         });
 
+        // mixedVideoStream.prototype.appendStreams = appendStreams;
+        // mixedVideoStream.prototype.resetVideoStreams = resetVideoStreams;
+        // mixedVideoStream.prototype.clearRecordedData = clearRecordedData;
+
         return mixedVideoStream;
     }
 
@@ -5131,6 +5283,8 @@ function MultiStreamsMixer(arrayOfMediaStreams) {
         });
 
         if (!audioTracksLength) {
+            // because "self.audioContext" is not initialized
+            // that's why we've to ignore rest of the code
             return;
         }
 
@@ -5145,6 +5299,8 @@ function MultiStreamsMixer(arrayOfMediaStreams) {
         var video = document.createElement('video');
 
         setSrcObject(stream, video);
+
+        video.className = elementClass;
 
         video.muted = true;
         video.volume = 0;
@@ -5166,24 +5322,34 @@ function MultiStreamsMixer(arrayOfMediaStreams) {
             streams = [streams];
         }
 
-        arrayOfMediaStreams.concat(streams);
-
         streams.forEach(function(stream) {
+            var newStream = new MediaStream();
+
             if (stream.getTracks().filter(function(t) {
                     return t.kind === 'video';
                 }).length) {
                 var video = getVideo(stream);
                 video.stream = stream;
                 videos.push(video);
+
+                newStream.addTrack(stream.getTracks().filter(function(t) {
+                    return t.kind === 'video';
+                })[0]);
             }
 
             if (stream.getTracks().filter(function(t) {
                     return t.kind === 'audio';
-                }).length && self.audioContext) {
+                }).length) {
                 var audioSource = self.audioContext.createMediaStreamSource(stream);
+                self.audioDestination = self.audioContext.createMediaStreamDestination();
                 audioSource.connect(self.audioDestination);
-                self.audioSources.push(audioSource);
+
+                newStream.addTrack(self.audioDestination.stream.getTracks().filter(function(t) {
+                    return t.kind === 'audio';
+                })[0]);
             }
+
+            arrayOfMediaStreams.push(newStream);
         });
     };
 
@@ -5258,6 +5424,18 @@ function MultiStreamsMixer(arrayOfMediaStreams) {
 
 }
 
+if (typeof RecordRTC === 'undefined') {
+    if (typeof module !== 'undefined' /* && !!module.exports*/ ) {
+        module.exports = MultiStreamsMixer;
+    }
+
+    if (typeof define === 'function' && define.amd) {
+        define('MultiStreamsMixer', [], function() {
+            return MultiStreamsMixer;
+        });
+    }
+}
+
 // ______________________
 // MultiStreamRecorder.js
 
@@ -5268,8 +5446,8 @@ function MultiStreamsMixer(arrayOfMediaStreams) {
 /**
  * MultiStreamRecorder can record multiple videos in single container.
  * @summary Multi-videos recorder.
- * @license {@link https://github.com/muaz-khan/RecordRTC#license|MIT}
- * @author {@link http://www.MuazKhan.com|Muaz Khan}
+ * @license {@link https://github.com/muaz-khan/RecordRTC/blob/master/LICENSE|MIT}
+ * @author {@link https://MuazKhan.com|Muaz Khan}
  * @typedef MultiStreamRecorder
  * @class
  * @example
@@ -5297,6 +5475,7 @@ function MultiStreamRecorder(arrayOfMediaStreams, options) {
     var mediaRecorder;
 
     options = options || {
+        elementClass: 'multi-streams-mixer',
         mimeType: 'video/webm',
         video: {
             width: 360,
@@ -5329,7 +5508,7 @@ function MultiStreamRecorder(arrayOfMediaStreams, options) {
      */
     this.record = function() {
         // github/muaz-khan/MultiStreamsMixer
-        mixer = new MultiStreamsMixer(arrayOfMediaStreams);
+        mixer = new MultiStreamsMixer(arrayOfMediaStreams, options.elementClass || 'multi-streams-mixer');
 
         if (getAllVideoTracks().length) {
             mixer.frameInterval = options.frameInterval || 10;
@@ -5450,6 +5629,10 @@ function MultiStreamRecorder(arrayOfMediaStreams, options) {
         }
 
         mixer.appendStreams(streams);
+
+        if (options.previewStream && typeof options.previewStream === 'function') {
+            options.previewStream(mixer.getMixedStream());
+        }
     };
 
     /**
@@ -5472,6 +5655,18 @@ function MultiStreamRecorder(arrayOfMediaStreams, options) {
         mixer.resetVideoStreams(streams);
     };
 
+    /**
+     * Returns MultiStreamsMixer
+     * @method
+     * @memberof MultiStreamRecorder
+     * @example
+     * let mixer = recorder.getMixer();
+     * mixer.appendStreams([newStream]);
+     */
+    this.getMixer = function() {
+        return mixer;
+    };
+
     // for debugging
     this.name = 'MultiStreamRecorder';
     this.toString = function() {
@@ -5489,8 +5684,8 @@ if (typeof RecordRTC !== 'undefined') {
 /**
  * RecordRTCPromisesHandler adds promises support in {@link RecordRTC}. Try a {@link https://github.com/muaz-khan/RecordRTC/blob/master/simple-demos/RecordRTCPromisesHandler.html|demo here}
  * @summary Promises for {@link RecordRTC}
- * @license {@link https://github.com/muaz-khan/RecordRTC#license|MIT}
- * @author {@link http://www.MuazKhan.com|Muaz Khan}
+ * @license {@link https://github.com/muaz-khan/RecordRTC/blob/master/LICENSE|MIT}
+ * @author {@link https://MuazKhan.com|Muaz Khan}
  * @typedef RecordRTCPromisesHandler
  * @class
  * @example
@@ -5498,6 +5693,9 @@ if (typeof RecordRTC !== 'undefined') {
  * recorder.startRecording()
  *         .then(successCB)
  *         .catch(errorCB);
+ * // Note: You can access all RecordRTC API using "recorder.recordRTC" e.g.
+ * recorder.recordRTC.onStateChanged = function(state) {};
+ * recorder.recordRTC.setRecordingDuration(5000);
  * @see {@link https://github.com/muaz-khan/RecordRTC|RecordRTC Source Code}
  * @param {MediaStream} mediaStream - Single media-stream object, array of media-streams, html-canvas-element, etc.
  * @param {object} config - {type:"video", recorderType: MediaStreamRecorder, disableLogs: true, numberOfAudioChannels: 1, bufferSize: 0, sampleRate: 0, video: HTMLVideoElement, etc.}
@@ -5520,8 +5718,9 @@ function RecordRTCPromisesHandler(mediaStream, options) {
      * @property {Blob} blob - Access/reach the native {@link RecordRTC} object.
      * @memberof RecordRTCPromisesHandler
      * @example
-     * var internal = recorder.recordRTC.getInternalRecorder();
+     * let internal = recorder.recordRTC.getInternalRecorder();
      * alert(internal instanceof MediaStreamRecorder);
+     * recorder.recordRTC.onStateChanged = function(state) {};
      */
     self.recordRTC = new RecordRTC(mediaStream, options);
 
@@ -5574,6 +5773,46 @@ function RecordRTCPromisesHandler(mediaStream, options) {
     };
 
     /**
+     * This method pauses the recording. You can resume recording using "resumeRecording" method.
+     * @method
+     * @memberof RecordRTCPromisesHandler
+     * @example
+     * recorder.pauseRecording()
+     *         .then(successCB)
+     *         .catch(errorCB);
+     */
+    this.pauseRecording = function() {
+        return new Promise(function(resolve, reject) {
+            try {
+                self.recordRTC.pauseRecording();
+                resolve();
+            } catch (e) {
+                reject(e);
+            }
+        });
+    };
+
+    /**
+     * This method resumes the recording.
+     * @method
+     * @memberof RecordRTCPromisesHandler
+     * @example
+     * recorder.resumeRecording()
+     *         .then(successCB)
+     *         .catch(errorCB);
+     */
+    this.resumeRecording = function() {
+        return new Promise(function(resolve, reject) {
+            try {
+                self.recordRTC.resumeRecording();
+                resolve();
+            } catch (e) {
+                reject(e);
+            }
+        });
+    };
+
+    /**
      * This method returns data-url for the recorded blob.
      * @method
      * @memberof RecordRTCPromisesHandler
@@ -5616,14 +5855,102 @@ function RecordRTCPromisesHandler(mediaStream, options) {
     };
 
     /**
+     * Destroy RecordRTC instance. Clear all recorders and objects.
+     * @method
+     * @memberof RecordRTCPromisesHandler
+     * @example
+     * let internalRecorder = await recorder.getInternalRecorder();
+     * if(internalRecorder instanceof MultiStreamRecorder) {
+     *     internalRecorder.addStreams([newAudioStream]);
+     *     internalRecorder.resetVideoStreams([screenStream]);
+     * }
+     * @returns {Object} Returns internal recording object.
+     */
+    this.getInternalRecorder = function() {
+        return new Promise(function(resolve, reject) {
+            try {
+                resolve(self.recordRTC.getInternalRecorder());
+            } catch (e) {
+                reject(e);
+            }
+        });
+    };
+
+    /**
+     * This method resets the recorder. So that you can reuse single recorder instance many times.
+     * @method
+     * @memberof RecordRTCPromisesHandler
+     * @example
+     * await recorder.reset();
+     * recorder.startRecording(); // record again
+     */
+    this.reset = function() {
+        return new Promise(function(resolve, reject) {
+            try {
+                resolve(self.recordRTC.reset());
+            } catch (e) {
+                reject(e);
+            }
+        });
+    };
+
+    /**
+     * Destroy RecordRTC instance. Clear all recorders and objects.
+     * @method
+     * @memberof RecordRTCPromisesHandler
+     * @example
+     * recorder.destroy().then(successCB).catch(errorCB);
+     */
+    this.destroy = function() {
+        return new Promise(function(resolve, reject) {
+            try {
+                resolve(self.recordRTC.destroy());
+            } catch (e) {
+                reject(e);
+            }
+        });
+    };
+
+    /**
+     * Get recorder's readonly state.
+     * @method
+     * @memberof RecordRTCPromisesHandler
+     * @example
+     * let state = await recorder.getState();
+     * // or
+     * recorder.getState().then(state => { console.log(state); })
+     * @returns {String} Returns recording state.
+     */
+    this.getState = function() {
+        return new Promise(function(resolve, reject) {
+            try {
+                resolve(self.recordRTC.getState());
+            } catch (e) {
+                reject(e);
+            }
+        });
+    };
+
+    /**
      * @property {Blob} blob - Recorded data as "Blob" object.
      * @memberof RecordRTCPromisesHandler
      * @example
-     * recorder.stopRecording().then(function() {
-     *     var blob = recorder.getBlob();
-     * }).catch(errorCB);
+     * await recorder.stopRecording();
+     * let blob = recorder.getBlob(); // or "recorder.recordRTC.blob"
+     * invokeSaveAsDialog(blob);
      */
     this.blob = null;
+
+    /**
+     * RecordRTC version number
+     * @property {String} version - Release version number.
+     * @memberof RecordRTCPromisesHandler
+     * @static
+     * @readonly
+     * @example
+     * alert(recorder.version);
+     */
+    this.version = '5.5.9';
 }
 
 if (typeof RecordRTC !== 'undefined') {
@@ -5636,8 +5963,8 @@ if (typeof RecordRTC !== 'undefined') {
 /**
  * WebAssemblyRecorder lets you create webm videos in JavaScript via WebAssembly. The library consumes raw RGBA32 buffers (4 bytes per pixel) and turns them into a webm video with the given framerate and quality. This makes it compatible out-of-the-box with ImageData from a CANVAS. With realtime mode you can also use webm-wasm for streaming webm videos.
  * @summary Video recording feature in Chrome, Firefox and maybe Edge.
- * @license {@link https://github.com/muaz-khan/RecordRTC#license|MIT}
- * @author {@link http://www.MuazKhan.com|Muaz Khan}
+ * @license {@link https://github.com/muaz-khan/RecordRTC/blob/master/LICENSE|MIT}
+ * @author {@link https://MuazKhan.com|Muaz Khan}
  * @typedef WebAssemblyRecorder
  * @class
  * @example
