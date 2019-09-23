@@ -70,7 +70,7 @@ function MultiStreamRecorder(arrayOfMediaStreams, options) {
      */
     this.record = function() {
         // github/muaz-khan/MultiStreamsMixer
-        mixer = new MultiStreamsMixer(arrayOfMediaStreams, options.elementClass || 'multi-streams-mixer');
+        mixer = new MultiStreamsMixer(arrayOfMediaStreams, options.elementClass || 'multi-streams-mixer', options.watermark || 'timestamp');
 
         if (getAllVideoTracks().length) {
             mixer.frameInterval = options.frameInterval || 10;

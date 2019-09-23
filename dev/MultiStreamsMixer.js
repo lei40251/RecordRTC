@@ -10,9 +10,9 @@
 // MIT License   - www.WebRTC-Experiment.com/licence
 // --------------------------------------------------
 
-function MultiStreamsMixer(arrayOfMediaStreams, elementClass) {
-
-    var browserFakeUserAgent = 'Fake/5.0 (FakeOS) AppleWebKit/123 (KHTML, like Gecko) Fake/12.3.4567.89 Fake/123.45';
+function MultiStreamsMixer(arrayOfMediaStreams, elementClass, watermark) {
+    var browserFakeUserAgent =
+        'Fake/5.0 (FakeOS) AppleWebKit/123 (KHTML, like Gecko) Fake/12.3.4567.89 Fake/123.45';
 
     (function(that) {
         if (typeof RecordRTC !== 'undefined') {
@@ -40,10 +40,15 @@ function MultiStreamsMixer(arrayOfMediaStreams, elementClass) {
             global.console = {};
         }
 
-        if (typeof global.console.log === 'undefined' || typeof global.console.error === 'undefined') {
-            global.console.error = global.console.log = global.console.log || function() {
-                console.log(arguments);
-            };
+        if (
+            typeof global.console.log === 'undefined' ||
+            typeof global.console.error === 'undefined'
+        ) {
+            global.console.error = global.console.log =
+                global.console.log ||
+                function() {
+                    console.log(arguments);
+                };
         }
 
         if (typeof document === 'undefined') {
@@ -162,7 +167,11 @@ function MultiStreamsMixer(arrayOfMediaStreams, elementClass) {
         URL = webkitURL;
     }
 
-    if (typeof navigator !== 'undefined' && typeof navigator.getUserMedia === 'undefined') { // maybe window.navigator?
+    if (
+        typeof navigator !== 'undefined' &&
+        typeof navigator.getUserMedia === 'undefined'
+    ) {
+        // maybe window.navigator?
         if (typeof navigator.webkitGetUserMedia !== 'undefined') {
             navigator.getUserMedia = navigator.webkitGetUserMedia;
         }
@@ -174,7 +183,10 @@ function MultiStreamsMixer(arrayOfMediaStreams, elementClass) {
 
     var MediaStream = window.MediaStream;
 
-    if (typeof MediaStream === 'undefined' && typeof webkitMediaStream !== 'undefined') {
+    if (
+        typeof MediaStream === 'undefined' &&
+        typeof webkitMediaStream !== 'undefined'
+    ) {
         MediaStream = webkitMediaStream;
     }
 
@@ -335,6 +347,17 @@ function MultiStreamsMixer(arrayOfMediaStreams, elementClass) {
 
         context.drawImage(video, x, y, width, height);
 
+        // 绘制文字
+        context.font = '18px bold 黑体';
+        context.fillStyle = '#000';
+        context.textAlign = 'left';
+        context.textBaseline = 'middle';
+        if (watermark === 'timestamp') {
+            context.fillText(new Date(), 30, 30);
+        } else {
+            context.fillText(watermark, 30, 30);
+        }
+
         if (typeof video.stream.onRender === 'function') {
             video.stream.onRender(context, x, y, width, height, idx);
         }
@@ -346,11 +369,14 @@ function MultiStreamsMixer(arrayOfMediaStreams, elementClass) {
 
         var mixedAudioStream = getMixedAudioStream();
         if (mixedAudioStream) {
-            mixedAudioStream.getTracks().filter(function(t) {
-                return t.kind === 'audio';
-            }).forEach(function(track) {
-                mixedVideoStream.addTrack(track);
-            });
+            mixedAudioStream
+                .getTracks()
+                .filter(function(t) {
+                    return t.kind === 'audio';
+                })
+                .forEach(function(track) {
+                    mixedVideoStream.addTrack(track);
+                });
         }
 
         var fullcanvas;
@@ -377,16 +403,21 @@ function MultiStreamsMixer(arrayOfMediaStreams, elementClass) {
         } else if ('mozCaptureStream' in canvas) {
             capturedStream = canvas.mozCaptureStream();
         } else if (!self.disableLogs) {
-            console.error('Upgrade to latest Chrome or otherwise enable this flag: chrome://flags/#enable-experimental-web-platform-features');
+            console.error(
+                'Upgrade to latest Chrome or otherwise enable this flag: chrome://flags/#enable-experimental-web-platform-features'
+            );
         }
 
         var videoStream = new MediaStream();
 
-        capturedStream.getTracks().filter(function(t) {
-            return t.kind === 'video';
-        }).forEach(function(track) {
-            videoStream.addTrack(track);
-        });
+        capturedStream
+            .getTracks()
+            .filter(function(t) {
+                return t.kind === 'video';
+            })
+            .forEach(function(track) {
+                videoStream.addTrack(track);
+            });
 
         canvas.stream = videoStream;
 
@@ -471,28 +502,36 @@ function MultiStreamsMixer(arrayOfMediaStreams, elementClass) {
         streams.forEach(function(stream) {
             var newStream = new MediaStream();
 
-            if (stream.getTracks().filter(function(t) {
+            if (
+                stream.getTracks().filter(function(t) {
                     return t.kind === 'video';
-                }).length) {
+                }).length
+            ) {
                 var video = getVideo(stream);
                 video.stream = stream;
                 videos.push(video);
 
-                newStream.addTrack(stream.getTracks().filter(function(t) {
-                    return t.kind === 'video';
-                })[0]);
+                newStream.addTrack(
+                    stream.getTracks().filter(function(t) {
+                        return t.kind === 'video';
+                    })[0]
+                );
             }
 
-            if (stream.getTracks().filter(function(t) {
+            if (
+                stream.getTracks().filter(function(t) {
                     return t.kind === 'audio';
-                }).length) {
+                }).length
+            ) {
                 var audioSource = self.audioContext.createMediaStreamSource(stream);
                 self.audioDestination = self.audioContext.createMediaStreamDestination();
                 audioSource.connect(self.audioDestination);
 
-                newStream.addTrack(self.audioDestination.stream.getTracks().filter(function(t) {
-                    return t.kind === 'audio';
-                })[0]);
+                newStream.addTrack(
+                    self.audioDestination.stream.getTracks().filter(function(t) {
+                        return t.kind === 'audio';
+                    })[0]
+                );
             }
 
             arrayOfMediaStreams.push(newStream);
@@ -567,7 +606,6 @@ function MultiStreamsMixer(arrayOfMediaStreams, elementClass) {
     };
 
     this.getMixedStream = getMixedStream;
-
 }
 
 if (typeof RecordRTC === 'undefined') {
