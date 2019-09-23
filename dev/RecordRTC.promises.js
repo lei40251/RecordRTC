@@ -13,7 +13,11 @@
  * recorder.startRecording()
  *         .then(successCB)
  *         .catch(errorCB);
+<<<<<<< HEAD
  * // Note: You can access all RecordRTC API using "recorder.recordRTC" e.g.
+=======
+ * // Note: You can access all RecordRTC API using "recorder.recordRTC" e.g. 
+>>>>>>> muaz-khan-master
  * recorder.recordRTC.onStateChanged = function(state) {};
  * recorder.recordRTC.setRecordingDuration(5000);
  * @see {@link https://github.com/muaz-khan/RecordRTC|RecordRTC Source Code}

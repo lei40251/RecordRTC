@@ -1914,6 +1914,14 @@ function setSrcObject(stream, element) {
     fileReader.readAsArrayBuffer(inputBlob);
 }
 
+if (typeof RecordRTC !== 'undefined') {
+    RecordRTC.invokeSaveAsDialog = invokeSaveAsDialog;
+    RecordRTC.getTracks = getTracks;
+    RecordRTC.getSeekableBlob = getSeekableBlob;
+    RecordRTC.bytesToSize = bytesToSize;
+    RecordRTC.isElectron = isElectron;
+}
+
 /**
  * @param {Blob} file - File or Blob object.
  * @param {function} callback - Callback function.
