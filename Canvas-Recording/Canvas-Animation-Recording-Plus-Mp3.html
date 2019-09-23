@@ -227,8 +227,8 @@
 
     <!-- below section handles RecordRTC and WhammyRecorder -->
 
-    <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
-    <script src="https://cdn.webrtc-experiment.com/FileSelector.js"></script>
+    <script src="https://www.webrtc-experiment.com/RecordRTC.js"></script>
+    <script src="https://www.webrtc-experiment.com/FileSelector.js"></script>
 
     <script>
         document.getElementById('btn-record-webm').onclick = function() {
@@ -239,10 +239,10 @@
                 var canvasStream = canvas.captureStream();
 
                 var finalStream = new MediaStream();
-                audioStream.getAudioTracks().forEach(function(track) {
+                getTracks(audioStream, 'audio').forEach(function(track) {
                     finalStream.addTrack(track);
                 });
-                canvasStream.getVideoTracks().forEach(function(track) {
+                getTracks(canvasStream, 'video').forEach(function(track) {
                     finalStream.addTrack(track);
                 });
 

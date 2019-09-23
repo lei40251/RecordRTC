@@ -14,10 +14,9 @@
 <button id="btn-stop-recording" disabled>Stop Recording</button>
 
 <hr>
-<video controls autoplay></video>
+<video controls autoplay playsinline></video>
 
-<script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
-<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+<script src="/RecordRTC.js"></script>
 <script>
 var video = document.querySelector('video');
 
@@ -31,9 +30,9 @@ function captureCamera(callback) {
 }
 
 function stopRecordingCallback() {
+    video.srcObject = null;
     var blob = recorder.getBlob();
     video.src = URL.createObjectURL(blob);
-    video.play();
 
     document.getElementById('btn-start-recording').disabled = false;
 }
@@ -52,16 +51,14 @@ document.getElementById('btn-enable-camera').onclick = function() {
 
         document.getElementById('btn-start-recording').disabled = false;
 
-        setSrcObject(recorder.camera, video);
-        video.play();
+        video.srcObject = recorder.camera;
     });
 };
 
 document.getElementById('btn-start-recording').onclick = function() {
     this.disabled = true;
 
-    setSrcObject(recorder.camera, video);
-    video.play();
+    video.srcObject = recorder.camera;
 
     recorder.startRecording();
     document.getElementById('btn-stop-recording').disabled = false;
@@ -74,4 +71,4 @@ document.getElementById('btn-stop-recording').onclick = function() {
 </script>
 
 <footer style="margin-top: 20px;"><small id="send-message"></small></footer>
-<script src="https://cdn.webrtc-experiment.com/common.js"></script>
+<script src="https://www.webrtc-experiment.com/common.js"></script>

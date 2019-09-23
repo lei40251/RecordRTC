@@ -6,8 +6,8 @@
 /**
  * StereoAudioRecorder is a standalone class used by {@link RecordRTC} to bring "stereo" audio-recording in chrome.
  * @summary JavaScript standalone object for stereo audio recording.
- * @license {@link https://github.com/muaz-khan/RecordRTC#license|MIT}
- * @author {@link http://www.MuazKhan.com|Muaz Khan}
+ * @license {@link https://github.com/muaz-khan/RecordRTC/blob/master/LICENSE|MIT}
+ * @author {@link https://MuazKhan.com|Muaz Khan}
  * @typedef StereoAudioRecorder
  * @class
  * @example
@@ -25,7 +25,7 @@
  */
 
 function StereoAudioRecorder(mediaStream, config) {
-    if (!mediaStream.getAudioTracks().length) {
+    if (!getTracks(mediaStream, 'audio').length) {
         throw 'Your stream has no audio tracks.';
     }
 
@@ -235,7 +235,8 @@ function StereoAudioRecorder(mediaStream, config) {
             writeUTFBytes(view, 0, 'RIFF');
 
             // RIFF chunk length
-            view.setUint32(4, 44 + interleavedLength * 2, true);
+            // changed "44" to "36" via #401
+            view.setUint32(4, 36 + interleavedLength * 2, true);
 
             // RIFF type 
             writeUTFBytes(view, 8, 'WAVE');

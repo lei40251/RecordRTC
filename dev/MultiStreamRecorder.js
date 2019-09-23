@@ -8,8 +8,8 @@
 /**
  * MultiStreamRecorder can record multiple videos in single container.
  * @summary Multi-videos recorder.
- * @license {@link https://github.com/muaz-khan/RecordRTC#license|MIT}
- * @author {@link http://www.MuazKhan.com|Muaz Khan}
+ * @license {@link https://github.com/muaz-khan/RecordRTC/blob/master/LICENSE|MIT}
+ * @author {@link https://MuazKhan.com|Muaz Khan}
  * @typedef MultiStreamRecorder
  * @class
  * @example
@@ -37,6 +37,7 @@ function MultiStreamRecorder(arrayOfMediaStreams, options) {
     var mediaRecorder;
 
     options = options || {
+        elementClass: 'multi-streams-mixer',
         mimeType: 'video/webm',
         video: {
             width: 360,
@@ -69,9 +70,9 @@ function MultiStreamRecorder(arrayOfMediaStreams, options) {
      */
     this.record = function() {
         // github/muaz-khan/MultiStreamsMixer
-        mixer = new MultiStreamsMixer(arrayOfMediaStreams);
+        mixer = new MultiStreamsMixer(arrayOfMediaStreams, options.elementClass || 'multi-streams-mixer');
 
-        if (getVideoTracks().length) {
+        if (getAllVideoTracks().length) {
             mixer.frameInterval = options.frameInterval || 10;
             mixer.width = options.video.width || 360;
             mixer.height = options.video.height || 240;
@@ -87,10 +88,10 @@ function MultiStreamRecorder(arrayOfMediaStreams, options) {
         mediaRecorder.record();
     };
 
-    function getVideoTracks() {
+    function getAllVideoTracks() {
         var tracks = [];
         arrayOfMediaStreams.forEach(function(stream) {
-            stream.getVideoTracks().forEach(function(track) {
+            getTracks(stream, 'video').forEach(function(track) {
                 tracks.push(track);
             });
         });
@@ -190,6 +191,10 @@ function MultiStreamRecorder(arrayOfMediaStreams, options) {
         }
 
         mixer.appendStreams(streams);
+
+        if (options.previewStream && typeof options.previewStream === 'function') {
+            options.previewStream(mixer.getMixedStream());
+        }
     };
 
     /**
@@ -210,6 +215,18 @@ function MultiStreamRecorder(arrayOfMediaStreams, options) {
         }
 
         mixer.resetVideoStreams(streams);
+    };
+
+    /**
+     * Returns MultiStreamsMixer
+     * @method
+     * @memberof MultiStreamRecorder
+     * @example
+     * let mixer = recorder.getMixer();
+     * mixer.appendStreams([newStream]);
+     */
+    this.getMixer = function() {
+        return mixer;
     };
 
     // for debugging

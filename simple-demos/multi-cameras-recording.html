@@ -2,16 +2,17 @@
     html, body, video, canvas {
         margin: 0!important;
         padding: 0!important;
+        text-align: center;
     }
 </style>
 
 <title>Multi-Videos (Conference) recording using RecordRTC</title>
+<h1>Multi-Videos (Conference) recording using RecordRTC</h1>
 
-<video controls autoplay></video>
+<video controls autoplay playsinline></video>
 
-<script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
-<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
-<script src="https://cdn.webrtc-experiment.com/DetectRTC.js"> </script>
+<script src="/RecordRTC.js"></script>
+<script src="https://www.webrtc-experiment.com/DetectRTC.js"> </script>
 <script>
 var allCameraStreams = [];
 
@@ -21,7 +22,6 @@ function captureAllCameras(callback) {
 
     DetectRTC.videoInputDevices.forEach(function(device, idx) {
         navigator.mediaDevices.getUserMedia({
-            audio: true,
             video: {
                 mandatory: {},
                 optional: [{
@@ -64,8 +64,8 @@ function captureAllCameras(callback) {
             if (idx == DetectRTC.videoInputDevices.length - 1) {
                 callback(streams);
             }
-        }).catch(function() {
-            console.error(arguments);
+        }).catch(function(e) {
+            console.error(e);
         });
     })
 }
@@ -85,11 +85,22 @@ DetectRTC.load(function() {
             mimeType: 'video/webm',
             previewStream: function(s) {
                 video.muted = true;
-                setSrcObject(s, video);
+                video.srcObject = s;
             }
         });
 
         recorder.startRecording();
+
+        // MediaRecorder API does not allows adding more streams whilst recording is ACTIVE
+        false && setTimeout(function() {
+            // append audio stream after 2 seconds
+            navigator.mediaDevices.getUserMedia({audio: true}).then(function(mic) {
+                let mixer = recorder.getInternalRecorder().getMixer();
+                mixer.appendStreams([mic]);
+                video.srcObject = mixer.getMixedStream();
+                allCameraStreams.push(mic);
+            });
+        }, 2000);
 
         (function looper() {
             timeout--;
@@ -103,17 +114,15 @@ DetectRTC.load(function() {
                 var blob = recorder.getBlob();
 
                 video.muted = false;
-                video.src = URL.createObjectURL(blob);
 
                 allCameraStreams.forEach(function(stream) {
-                    stream.getVideoTracks().forEach(function(track) {
+                    stream.getTracks().forEach(function(track) {
                         track.stop();
                     });
+                });
 
-                    stream.getAudioTracks().forEach(function(track) {
-                        track.stop();
-                    });
-                })
+                video.srcObject = null;
+                video.src = URL.createObjectURL(blob);
             });
         })();
     });
@@ -184,5 +193,5 @@ function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
 }
 </script>
 
-<footer style="margin-top: 20px;"><small id="send-message"></small></footer>
-<script src="https://cdn.webrtc-experiment.com/common.js"></script>
+<footer style="margin-top: 20px; text-align: left;"><small id="send-message"></small></footer>
+<script src="https://www.webrtc-experiment.com/common.js"></script>

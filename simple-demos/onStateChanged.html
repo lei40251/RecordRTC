@@ -17,10 +17,9 @@
 <button id="btn-pause-recording" disabled>Pause Recording</button>
 
 <hr>
-<video controls autoplay></video>
+<video controls autoplay playsinline></video>
 
-<script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
-<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+<script src="/RecordRTC.js"></script>
 <script>
 var video = document.querySelector('video');
 
@@ -34,9 +33,9 @@ function captureCamera(callback) {
 }
 
 function stopRecordingCallback() {
+    video.srcObject = null;
     var blob = recorder.getBlob();
     video.src = URL.createObjectURL(blob);
-    video.play();
 
     recorder.camera.stop();
 }
@@ -46,8 +45,7 @@ var recorder; // globally accessible
 document.getElementById('btn-start-recording').onclick = function() {
     this.disabled = true;
     captureCamera(function(camera) {
-        setSrcObject(camera, video);
-        video.play();
+        video.srcObject = camera;
 
         recorder = RecordRTC(camera, {
             type: 'video'
@@ -91,4 +89,4 @@ document.getElementById('btn-pause-recording').onclick = function() {
 </script>
 
 <footer style="margin-top: 20px;"><small id="send-message"></small></footer>
-<script src="https://cdn.webrtc-experiment.com/common.js"></script>
+<script src="https://www.webrtc-experiment.com/common.js"></script>

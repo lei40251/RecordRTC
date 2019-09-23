@@ -14,14 +14,13 @@ Interval: <input id="interval" type="text" value="3000"> milliseconds
 <button id="btn-stop-recording" disabled>Stop Recording</button>
 
 <hr>
-<audio controls autoplay></audio>
+<audio controls autoplay playsinline></audio>
 
 <div id="audio-blobs-container" style="margin-top: 20px;">
     <h2 style="margin-bottom: 20px;">Audio Blobs Goes Here:</h2>
 </div>
 
-<script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
-<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+<script src="/RecordRTC.js"></script>
 
 <script>
 var audio = document.querySelector('audio');
@@ -47,8 +46,7 @@ var recorder; // globally accessible
 document.getElementById('btn-start-recording').onclick = function() {
     this.disabled = true;
     capturemicrophone(function(microphone) {
-        setSrcObject(microphone, audio);
-        audio.play();
+        audio.srcObject = microphone;
 
         recorder = RecordRTC(microphone, {
             recorderType: StereoAudioRecorder,
@@ -57,6 +55,7 @@ document.getElementById('btn-start-recording').onclick = function() {
             ondataavailable: function(blob) {
                 var audio = document.createElement('audio');
                 audio.controls = true;
+                audio.srcObject = null;
                 audio.src = URL.createObjectURL(blob);
                 audioBlobsContainer.appendChild(audio);
                 audioBlobsContainer.appendChild(document.createElement('hr'));
@@ -79,4 +78,4 @@ document.getElementById('btn-stop-recording').onclick = function() {
 </script>
 
 <footer style="margin-top: 20px;"><small id="send-message"></small></footer>
-<script src="https://cdn.webrtc-experiment.com/common.js"></script>
+<script src="https://www.webrtc-experiment.com/common.js"></script>

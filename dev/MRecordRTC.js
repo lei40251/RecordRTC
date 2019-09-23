@@ -4,8 +4,8 @@
 /**
  * MRecordRTC runs on top of {@link RecordRTC} to bring multiple recordings in a single place, by providing simple API.
  * @summary MRecordRTC stands for "Multiple-RecordRTC".
- * @license {@link https://github.com/muaz-khan/RecordRTC#license|MIT}
- * @author {@link http://www.MuazKhan.com|Muaz Khan}
+ * @license {@link https://github.com/muaz-khan/RecordRTC/blob/master/LICENSE|MIT}
+ * @author {@link https://MuazKhan.com|Muaz Khan}
  * @typedef MRecordRTC
  * @class
  * @example
@@ -13,7 +13,7 @@
  * recorder.addStream(MediaStream);
  * recorder.mediaType = {
  *     audio: true, // or StereoAudioRecorder or MediaStreamRecorder
- *     video: true, // or WhammyRecorder or MediaStreamRecorder
+ *     video: true, // or WhammyRecorder or MediaStreamRecorder or WebAssemblyRecorder or CanvasRecorder
  *     gif: true    // or GifRecorder
  * };
  * // mimeType is optional and should be set only in advance cases.
@@ -53,7 +53,7 @@ function MRecordRTC(mediaStream) {
      * var recorder = new MRecordRTC();
      * recorder.mediaType = {
      *     audio: true, // TRUE or StereoAudioRecorder or MediaStreamRecorder
-     *     video: true, // TRUE or WhammyRecorder or MediaStreamRecorder
+     *     video: true, // TRUE or WhammyRecorder or MediaStreamRecorder or WebAssemblyRecorder or CanvasRecorder
      *     gif  : true  // TRUE or GifRecorder
      * };
      */
@@ -78,15 +78,15 @@ function MRecordRTC(mediaStream) {
             gif: null
         };
 
-        if (typeof mediaType.audio !== 'function' && isMediaRecorderCompatible() && mediaStream.getAudioTracks && !mediaStream.getAudioTracks().length) {
+        if (typeof mediaType.audio !== 'function' && isMediaRecorderCompatible() && !getTracks(mediaStream, 'audio').length) {
             mediaType.audio = false;
         }
 
-        if (typeof mediaType.video !== 'function' && isMediaRecorderCompatible() && mediaStream.getVideoTracks && !mediaStream.getVideoTracks().length) {
+        if (typeof mediaType.video !== 'function' && isMediaRecorderCompatible() && !getTracks(mediaStream, 'video').length) {
             mediaType.video = false;
         }
 
-        if (typeof mediaType.gif !== 'function' && isMediaRecorderCompatible() && mediaStream.getVideoTracks && !mediaStream.getVideoTracks().length) {
+        if (typeof mediaType.gif !== 'function' && isMediaRecorderCompatible() && !getTracks(mediaStream, 'video').length) {
             mediaType.gif = false;
         }
 
@@ -126,18 +126,20 @@ function MRecordRTC(mediaStream) {
             var newStream = mediaStream;
 
             if (isMediaRecorderCompatible() && !!mediaType.audio && typeof mediaType.audio === 'function') {
-                var videoTrack = mediaStream.getVideoTracks()[0];
+                var videoTrack = getTracks(mediaStream, 'video')[0];
 
-                if (!!navigator.mozGetUserMedia) {
+                if (isFirefox) {
                     newStream = new MediaStream();
                     newStream.addTrack(videoTrack);
 
                     if (recorderType && recorderType === WhammyRecorder) {
-                        // Firefox does NOT support webp-encoding yet
+                        // Firefox does NOT supports webp-encoding yet
+                        // But Firefox do supports WebAssemblyRecorder
                         recorderType = MediaStreamRecorder;
                     }
                 } else {
-                    newStream = new MediaStream([videoTrack]);
+                    newStream = new MediaStream();
+                    newStream.addTrack(videoTrack);
                 }
             }
 
@@ -150,7 +152,11 @@ function MRecordRTC(mediaStream) {
                 recorderType: recorderType,
                 mimeType: mimeType.video,
                 timeSlice: this.timeSlice,
-                onTimeStamp: this.onTimeStamp
+                onTimeStamp: this.onTimeStamp,
+                workerPath: this.workerPath,
+                webAssemblyPath: this.webAssemblyPath,
+                frameRate: this.frameRate, // used by WebAssemblyRecorder; values: usually 30; accepts any.
+                bitrate: this.bitrate // used by WebAssemblyRecorder; values: 0 to 1000+
             });
 
             if (!mediaType.audio) {
@@ -161,9 +167,15 @@ function MRecordRTC(mediaStream) {
         if (!!mediaType.audio && !!mediaType.video) {
             var self = this;
 
-            // this line prevents StereoAudioRecorder
-            // todo: fix it
-            if (isMediaRecorderCompatible() /* && !this.audioRecorder */ ) {
+            var isSingleRecorder = isMediaRecorderCompatible() === true;
+
+            if (mediaType.audio instanceof StereoAudioRecorder && !!mediaType.video) {
+                isSingleRecorder = false;
+            } else if (mediaType.audio !== true && mediaType.video !== true && mediaType.audio !== mediaType.video) {
+                isSingleRecorder = false;
+            }
+
+            if (isSingleRecorder === true) {
                 self.audioRecorder = null;
                 self.videoRecorder.startRecording();
             } else {

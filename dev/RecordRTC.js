@@ -4,8 +4,8 @@
 /**
  * {@link https://github.com/muaz-khan/RecordRTC|RecordRTC} is a WebRTC JavaScript library for audio/video as well as screen activity recording. It supports Chrome, Firefox, Opera, Android, and Microsoft Edge. Platforms: Linux, Mac and Windows. 
  * @summary Record audio, video or screen inside the browser.
- * @license {@link https://github.com/muaz-khan/RecordRTC#license|MIT}
- * @author {@link http://www.MuazKhan.com|Muaz Khan}
+ * @license {@link https://github.com/muaz-khan/RecordRTC/blob/master/LICENSE|MIT}
+ * @author {@link https://MuazKhan.com|Muaz Khan}
  * @typedef RecordRTC
  * @class
  * @example
@@ -35,6 +35,10 @@ function RecordRTC(mediaStream, config) {
     var self = this;
 
     function startRecording(config2) {
+        if (!config.disableLogs) {
+            console.log('RecordRTC version: ', self.version);
+        }
+
         if (!!config2) {
             // allow users to set options using startRecording method
             // config2 is similar to main "config" object (second parameter over RecordRTC constructor)
@@ -153,7 +157,11 @@ function RecordRTC(mediaStream, config) {
             }
 
             if (callback) {
-                var url = URL.createObjectURL(blob);
+                var url;
+
+                try {
+                    url = URL.createObjectURL(blob);
+                } catch (e) {}
 
                 if (typeof callback.call === 'function') {
                     callback.call(self, url);
@@ -258,15 +266,17 @@ function RecordRTC(mediaStream, config) {
         }
 
         function processInWebWorker(_function) {
-            var blob = URL.createObjectURL(new Blob([_function.toString(),
-                'this.onmessage =  function (eee) {' + _function.name + '(eee.data);}'
-            ], {
-                type: 'application/javascript'
-            }));
+            try {
+                var blob = URL.createObjectURL(new Blob([_function.toString(),
+                    'this.onmessage =  function (eee) {' + _function.name + '(eee.data);}'
+                ], {
+                    type: 'application/javascript'
+                }));
 
-            var worker = new Worker(blob);
-            URL.revokeObjectURL(blob);
-            return worker;
+                var worker = new Worker(blob);
+                URL.revokeObjectURL(blob);
+                return worker;
+            } catch (e) {}
         }
     }
 
@@ -513,10 +523,10 @@ function RecordRTC(mediaStream, config) {
          * @memberof RecordRTC
          * @instance
          * @example
-         * var internal = recorder.getInternalRecorder();
-         * if(internal instanceof MultiStreamRecorder) {
-         *     internal.addStreams([newAudioStream]);
-         *     internal.resetVideoStreams([screenStream]);
+         * var internalRecorder = recorder.getInternalRecorder();
+         * if(internalRecorder instanceof MultiStreamRecorder) {
+         *     internalRecorder.addStreams([newAudioStream]);
+         *     internalRecorder.resetVideoStreams([screenStream]);
          * }
          * @returns {Object} Returns internal recording object.
          */
@@ -661,6 +671,10 @@ function RecordRTC(mediaStream, config) {
          * recorder.startRecording();
          */
         reset: function() {
+            if (self.state === 'recording' && !config.disableLogs) {
+                console.warn('Stop an active recorder.');
+            }
+
             if (mediaRecorder && typeof mediaRecorder.clearRecordedData === 'function') {
                 mediaRecorder.clearRecordedData();
             }
@@ -695,7 +709,7 @@ function RecordRTC(mediaStream, config) {
          * @example
          * // this looper function will keep you updated about the recorder's states.
          * (function looper() {
-         *     document.querySelector('h1').innerHTML = 'Recorder's state is: ' + recorder.state;
+         *     document.querySelector('h1').innerHTML = 'Recorder\'s state is: ' + recorder.state;
          *     if(recorder.state === 'stopped') return; // ignore+stop
          *     setTimeout(looper, 1000); // update after every 3-seconds
          * })();
@@ -740,7 +754,7 @@ function RecordRTC(mediaStream, config) {
             config.disableLogs = disableLogsCache;
 
             if (!config.disableLogs) {
-                console.warn('RecordRTC is destroyed.');
+                console.log('RecordRTC is destroyed.');
             }
         },
 

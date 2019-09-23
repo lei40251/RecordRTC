@@ -4,7 +4,7 @@
 /**
  * MediaStreamRecorder is an abstraction layer for {@link https://w3c.github.io/mediacapture-record/MediaRecorder.html|MediaRecorder API}. It is used by {@link RecordRTC} to record MediaStream(s) in both Chrome and Firefox.
  * @summary Runs top over {@link https://w3c.github.io/mediacapture-record/MediaRecorder.html|MediaRecorder API}.
- * @license {@link https://github.com/muaz-khan/RecordRTC#license|MIT}
+ * @license {@link https://github.com/muaz-khan/RecordRTC/blob/master/LICENSE|MIT}
  * @author {@link https://github.com/muaz-khan|Muaz Khan}
  * @typedef MediaStreamRecorder
  * @class
@@ -40,7 +40,7 @@ function MediaStreamRecorder(mediaStream, config) {
     }
 
     if (typeof MediaRecorder === 'undefined') {
-        throw 'Your browser does not supports Media Recorder API. Please try other modules e.g. WhammyRecorder or StereoAudioRecorder.';
+        throw 'Your browser does not support the Media Recorder API. Please try other modules e.g. WhammyRecorder or StereoAudioRecorder.';
     }
 
     config = config || {
@@ -49,14 +49,14 @@ function MediaStreamRecorder(mediaStream, config) {
     };
 
     if (config.type === 'audio') {
-        if (mediaStream.getVideoTracks().length && mediaStream.getAudioTracks().length) {
+        if (getTracks(mediaStream, 'video').length && getTracks(mediaStream, 'audio').length) {
             var stream;
             if (!!navigator.mozGetUserMedia) {
                 stream = new MediaStream();
-                stream.addTrack(mediaStream.getAudioTracks()[0]);
+                stream.addTrack(getTracks(mediaStream, 'audio')[0]);
             } else {
                 // webkitMediaStream
-                stream = new MediaStream(mediaStream.getAudioTracks());
+                stream = new MediaStream(getTracks(mediaStream, 'audio'));
             }
             mediaStream = stream;
         }

@@ -14,20 +14,23 @@
     }
 </style>
 
-<title>Video+Screen recording using RecordRTC</title>
+<title>Screen Recording | RecordRTC</title>
+<h1>Screen Recording using RecordRTC</h1>
 
-<h1>
-    Video+Screen recording using RecordRTC
-</h1>
+<br>
 
-<p>It will record 10-seconds video and automatically stop the recording.</p>
+<button id="btn-start-recording">Start Recording</button>
+<button id="btn-stop-recording" disabled>Stop Recording</button>
 
-<video controls autoplay playsinline style="width: 40%;"></video>
+<hr>
+<video controls autoplay playsinline></video>
 
 <script src="/RecordRTC.js"></script>
 <script>
+var video = document.querySelector('video');
+
 if(!navigator.getDisplayMedia && !navigator.mediaDevices.getDisplayMedia) {
-    var error = 'Your browser does NOT supports getDisplayMedia API.';
+    var error = 'Your browser does NOT support the getDisplayMedia API.';
     document.querySelector('h1').innerHTML = error;
 
     document.querySelector('video').style.display = 'none';
@@ -62,10 +65,7 @@ function invokeGetDisplayMedia(success, error) {
 function captureScreen(callback) {
     invokeGetDisplayMedia(function(screen) {
         addStreamStopListener(screen, function() {
-            if(window.stopCallback) {
-                window.stopCallback();
-            }
-
+            document.getElementById('btn-stop-recording').click();
         });
         callback(screen);
     }, function(error) {
@@ -74,63 +74,41 @@ function captureScreen(callback) {
     });
 }
 
-function captureCamera(cb) {
-    navigator.mediaDevices.getUserMedia({audio: true, video: true}).then(cb);
+function stopRecordingCallback() {
+    video.src = video.srcObject = null;
+    video.src = URL.createObjectURL(recorder.getBlob());
+    
+    recorder.screen.stop();
+    recorder.destroy();
+    recorder = null;
+
+    document.getElementById('btn-start-recording').disabled = false;
 }
 
-function keepStreamActive(stream) {
-    var video = document.createElement('video');
-    video.muted = true;
-    video.srcObject = stream;
-    video.style.display = 'none';
-    (document.body || document.documentElement).appendChild(video);
-}
+var recorder; // globally accessible
 
-captureScreen(function(screen) {
-    keepStreamActive(screen);
-    captureCamera(function(camera) {
-        keepStreamActive(camera);
+document.getElementById('btn-start-recording').onclick = function() {
+    this.disabled = true;
+    captureScreen(function(screen) {
+        video.srcObject = screen;
 
-        screen.width = window.screen.width;
-        screen.height = window.screen.height;
-        screen.fullcanvas = true;
-        
-        camera.width = 320;
-        camera.height = 240;
-        camera.top = screen.height - camera.height;
-        camera.left = screen.width - camera.width;
-        
-        var recorder = RecordRTC([screen, camera], {
-            type: 'video',
-            mimeType: 'video/webm',
-            previewStream: function(s) {
-                document.querySelector('video').muted = true;
-                document.querySelector('video').srcObject = s;
-            }
+        recorder = RecordRTC(screen, {
+            type: 'video'
         });
 
         recorder.startRecording();
 
-        window.stopCallback = function() {
-            window.stopCallback = null;
+        // release screen on stopRecording
+        recorder.screen = screen;
 
-            recorder.stopRecording(function() {
-                var blob = recorder.getBlob();
-                document.querySelector('video').srcObject = null;
-                document.querySelector('video').src = URL.createObjectURL(blob);
-                document.querySelector('video').muted = false;
-
-                [screen, camera].forEach(function(stream) {
-                    stream.getTracks().forEach(function(track) {
-                        track.stop();
-                    });
-                });
-            });
-        };
-
-        window.timeout = setTimeout(window.stopCallback, 10 * 1000);
+        document.getElementById('btn-stop-recording').disabled = false;
     });
-});
+};
+
+document.getElementById('btn-stop-recording').onclick = function() {
+    this.disabled = true;
+    recorder.stopRecording(stopRecordingCallback);
+};
 
 function addStreamStopListener(stream, callback) {
     stream.addEventListener('ended', function() {
@@ -154,5 +132,11 @@ function addStreamStopListener(stream, callback) {
 }
 </script>
 
-<footer style="margin-top: 20px; text-align: left;"><small id="send-message"></small></footer>
+<br><br>
+
+<footer style="margin-top: 20px; text-align: left;">
+    <p style="padding: 5px 10px;"><b>Hints:</b> Are you using Chrome version 71? Please enable "chrome://flags/#enable-experimental-web-platform-features"</p>
+    <p style="padding: 5px 10px;"><b>Browser support:</b> Firefox, Edge and Chrome &gt= 71</p>
+    <div><small id="send-message"></small></div>
+</footer>
 <script src="https://www.webrtc-experiment.com/common.js"></script>
