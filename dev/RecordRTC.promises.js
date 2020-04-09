@@ -13,11 +13,7 @@
  * recorder.startRecording()
  *         .then(successCB)
  *         .catch(errorCB);
-<<<<<<< HEAD
  * // Note: You can access all RecordRTC API using "recorder.recordRTC" e.g.
-=======
- * // Note: You can access all RecordRTC API using "recorder.recordRTC" e.g. 
->>>>>>> muaz-khan-master
  * recorder.recordRTC.onStateChanged = function(state) {};
  * recorder.recordRTC.setRecordingDuration(5000);
  * @see {@link https://github.com/muaz-khan/RecordRTC|RecordRTC Source Code}
@@ -179,7 +175,7 @@ function RecordRTCPromisesHandler(mediaStream, options) {
     };
 
     /**
-     * Destroy RecordRTC instance. Clear all recorders and objects.
+     * This method returns the internal recording object.
      * @method
      * @memberof RecordRTCPromisesHandler
      * @example
@@ -188,7 +184,7 @@ function RecordRTCPromisesHandler(mediaStream, options) {
      *     internalRecorder.addStreams([newAudioStream]);
      *     internalRecorder.resetVideoStreams([screenStream]);
      * }
-     * @returns {Object} Returns internal recording object.
+     * @returns {Object}
      */
     this.getInternalRecorder = function() {
         return new Promise(function(resolve, reject) {
