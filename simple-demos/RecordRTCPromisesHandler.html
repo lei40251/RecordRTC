@@ -24,7 +24,6 @@ async function stopRecordingCallback() {
     let blob = await recorder.getBlob();
     video.src = URL.createObjectURL(blob);
     recorder.stream.getTracks(t => t.stop());
-<<<<<<< HEAD
 
     // reset recorder's state
     await recorder.reset();
@@ -47,30 +46,6 @@ document.getElementById('btn-start-recording').onclick = async function() {
     });
     await recorder.startRecording();
 
-=======
-
-    // reset recorder's state
-    await recorder.reset();
-
-    // clear the memory
-    await recorder.destroy();
-
-    // so that we can record again
-    recorder = null;
-}
-
-let recorder; // globally accessible
-
-document.getElementById('btn-start-recording').onclick = async function() {
-    this.disabled = true;
-    let stream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
-    video.srcObject = stream;
-    recorder = new RecordRTCPromisesHandler(stream, {
-        type: 'video'
-    });
-    await recorder.startRecording();
-    
->>>>>>> muaz-khan-master
     // helps releasing camera on stopRecording
     recorder.stream = stream;
 

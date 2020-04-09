@@ -77,11 +77,7 @@ function captureScreen(callback) {
 function stopRecordingCallback() {
     video.src = video.srcObject = null;
     video.src = URL.createObjectURL(recorder.getBlob());
-<<<<<<< HEAD
 
-=======
-    
->>>>>>> muaz-khan-master
     recorder.screen.stop();
     recorder.destroy();
     recorder = null;
