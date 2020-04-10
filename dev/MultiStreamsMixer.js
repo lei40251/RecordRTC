@@ -347,15 +347,28 @@ function MultiStreamsMixer(arrayOfMediaStreams, elementClass, watermark) {
 
         context.drawImage(video, x, y, width, height);
 
-        // 绘制文字
-        context.font = '18px bold 黑体';
-        context.fillStyle = '#000';
+        // watermark
+        context.font = '16px bold';
+        context.fillStyle = 'rgba(0,0,0,.6)';
         context.textAlign = 'left';
         context.textBaseline = 'middle';
         if (watermark === 'timestamp') {
-            context.fillText(new Date(), 30, 30);
+            context.fillText(
+                new Date().toLocaleString('zh-CN', {
+                    timeZoneName: 'long',
+                    hour12: false,
+                    year: 'numeric',
+                    month: 'short',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                }),
+                20,
+                25
+            );
         } else {
-            context.fillText(watermark, 30, 30);
+            context.fillText(watermark, 20, 25);
         }
 
         if (typeof video.stream.onRender === 'function') {

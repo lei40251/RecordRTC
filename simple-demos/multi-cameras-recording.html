@@ -76,8 +76,10 @@ var timeout = 10; // 10 seconds
 
 DetectRTC.load(function() {
     captureAllCameras(function(streams) {
-        if (streams.length == 1) {
+        if (streams.length <= 5) {
             streams.push(streams[0]);
+            streams.push(streams[1]);
+            streams.push(streams[2]);
         }
 
         var recorder = RecordRTC(streams, {
